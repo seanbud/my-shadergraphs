@@ -1,0 +1,1 @@
+Mask all the colors below world space positon with falloff of 0.1
