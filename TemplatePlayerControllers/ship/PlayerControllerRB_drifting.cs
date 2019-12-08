@@ -7,7 +7,7 @@ public class PlayerControllerRB_drifting : MonoBehaviour {
     private Rigidbody2D rb;
     [SerializeField] [Range(0,50)] private int playerSpeed = 37; // how fast player speeds up
     [SerializeField] [Range(0,50)] private float rotationSpeed = 2.2f; //speed player rotates at 
-    [SerializeField] [Range(0,100)] private float maxSpeed = 16; //speed player moves
+    [SerializeField] [Range(0,100)] public float maxSpeed = 16; //speed player moves
     // [SerializeField] [Range(0,100)] private float maxBoost = 10; //speed player moves
     [SerializeField] private bool breaking = false;
     [SerializeField] private float boostForce = 0;
@@ -15,10 +15,12 @@ public class PlayerControllerRB_drifting : MonoBehaviour {
     [SerializeField] private float BOOSTCOOLDOWN;
     
     private Vector2 targetPos = Vector2.zero;
-    private float xAxis, yAxis;
+    private float xAxis, yAxis; // Input
+    private float maxAngularDrag;
 
     void Start() {
         rb = GetComponent<Rigidbody2D>();
+        maxAngularDrag = rb.angularDrag;
     }
 
 
@@ -56,10 +58,18 @@ public class PlayerControllerRB_drifting : MonoBehaviour {
         // Filter speed
         ClampVelocity();
 
+        // Change momentum to angular momentum
+        float speedRatio = rb.velocity.magnitude / maxSpeed;
+        float newAngularDrag = maxAngularDrag * (1-speedRatio);
+        newAngularDrag = Mathf.Clamp(newAngularDrag, 0.03f * maxAngularDrag, maxAngularDrag);
+        rb.angularDrag = newAngularDrag;
+
         // TODO Angular Momentum from slowdown -> speedup on slowing rotation
         // idea is to calculate difference in velocity between fixed updates, 
             // then add that as torque, 
             //  but scaled with respect angular difference between transform.up and the movement direction (rb.velocity.normalized)
+
+        // Update Velocity
     }
 
     #region Maneuvering API
